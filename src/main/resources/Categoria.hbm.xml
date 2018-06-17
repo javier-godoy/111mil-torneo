@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria" table="categorias">
+  <id name="id">
+    <generator class="identity"></generator>
+  </id>
+  
+  <property name="descripcion"/>   
+  <property name="edadMin" column="edad_min"/>
+  <property name="edadMax" column="edad_max"/>
+  
+  <many-to-one name="sexo" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Sexo">
+  	<column name="sexo"/>
+  </many-to-one>   
+   	
+ </class>
+</hibernate-mapping>

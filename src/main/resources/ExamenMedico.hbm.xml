@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="ar.com.rjgodoy.plan111mil.torneo.modelo.ExamenMedico" table="examenes">
+  
+  <id name="id">
+  	 <generator class="foreign">
+         <param name="property">id</param>
+      </generator>
+  </id>
+  
+  <one-to-one name="inscripcion" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Inscripcion"/>
+    
+  <property name="apto"/>   
+  <property name="observaciones"/>
+  <property name="nombreMedico" column="nombre_medico"/>
+  <property name="matriculaMedico" column="matricula_medico"/>
+  <property name="fechaExamen" column="fecha_examen" type="date"/>
+  <property name="fechaPresentacion" column="fecha_presentacion" type="timestamp"/>
+ 	  
+ </class>
+</hibernate-mapping>

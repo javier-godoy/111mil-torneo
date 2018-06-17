@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="ar.com.rjgodoy.plan111mil.torneo.modelo.Inscripcion" table="inscripciones">
+
+  <id name="id">
+    <generator class="identity"></generator>
+  </id>
+  
+  <property name="posicion"/>
+  
+  <many-to-one name="competidor" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Competidor">
+  	<column name="competidor"/>
+  </many-to-one>
+  
+  <many-to-one name="examen" class="ar.com.rjgodoy.plan111mil.torneo.modelo.ExamenMedico">
+  	<column name="examen"/>
+  </many-to-one>
+  
+  <many-to-one name="competencia" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Competencia">
+  	<column name="competencia"/>
+  </many-to-one>
+  
+  <many-to-one name="categoria" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria">
+  	<column name="categoria"/>
+  </many-to-one>
+  
+ </class>
+</hibernate-mapping>

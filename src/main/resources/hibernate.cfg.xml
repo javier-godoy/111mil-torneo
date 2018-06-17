@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate
+Configuration DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernateconfiguration-3.0.dtd">
+
+<hibernate-configuration>
+
+<session-factory>
+ <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+ <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+ <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/torneo_111mil?useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTC</property>
+ <property name="hibernate.connection.username">root</property>
+ <property name="hibernate.connection.password">root</property>
+ 
+ <mapping resource="Categoria.hbm.xml"/> 
+ <mapping resource="Competencia.hbm.xml"/> 
+ <mapping resource="Competidor.hbm.xml"/> 
+ <mapping resource="Disciplina.hbm.xml"/>
+ <mapping resource="Escuela.hbm.xml"/>
+ <mapping resource="ExamenMedico.hbm.xml"/>
+ <mapping resource="Inscripcion.hbm.xml"/>
+ <mapping resource="Sede.hbm.xml"/>
+ <mapping resource="Sexo.hbm.xml"/>
+ <mapping resource="Torneo.hbm.xml"/>
+</session-factory>
+
+</hibernate-configuration>

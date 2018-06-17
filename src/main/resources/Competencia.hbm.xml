@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="ar.com.rjgodoy.plan111mil.torneo.modelo.Competencia" table="competencias">
+  <id name="id">
+    <generator class="identity"></generator>
+  </id>
+  
+  <property name="inicio" type="timestamp"/>   
+
+  <set name="categorias" table="competencias_categorias" inverse="false" cascade="all" >
+	<key>
+    	<column name="competencia" not-null="true" />
+    </key>
+    <many-to-many entity-name="ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria">
+    	<column name="categoria" not-null="true" />
+	</many-to-many>
+  </set>
+          
+  <many-to-one name="disciplina" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Disciplina">
+  	<column name="disciplina"/>
+  </many-to-one>
+            
+  <many-to-one name="torneo" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Torneo">
+  	<column name="torneo"/>
+  </many-to-one>
+  
+ </class>
+</hibernate-mapping>
