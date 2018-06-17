@@ -1,0 +1,35 @@
+CU01 Registrar Inscripcion de Aspirantes
+CU02 Registrar  Categoría
+CU03 Registrar Sede
+CU04 Registrar Disciplina
+CU05 Registrar Torneo
+CU06 Seleccionar Sede
+CU07 Listar Sedes
+CU08 Registrar Competencia
+CU09 Seleccionar Torneo
+CU10 Seleccionar Disciplina
+CU11 Seleccionar Categorías
+CU12 Listar Torneos
+CU13 Listar Disciplinas
+CU14 Listar Categorías
+CU15 Seleccionar Competencia
+CU16 Registrar Resultado Examen Médico
+CU17 Registrar Resultado de Competencia
+CU18 Generar reporte resultados de competencia
+CU19 Generar Informe de mejores competidores
+CU20 Generar Listado de mejores competidores
+CU21 Obtener mejores competidores
+CU22 Seleccionar Inscripción
+CU23 Listar Inscr. por competidor
+CU24 Seleccionar Competidor
+CU25 Seleccionar Escuela
+CU26 Listar Escuelas
+CU27 Listar Competidores por escuela
+CU28 Registrar Evaluación de Inscripción
+CU29 Generar informe de inscriptos que compitieron
+CU30 Ingresar Datos del Aspirante
+CU31 Seleccionar Competencias
+CU32 Seleccionar Categorías de competencia
+CU33 Registrar Escuela
+CU34 Generar Reporte de Escuelas más premiadas
+CU35 Generar Comparativo de resultados de competencias
