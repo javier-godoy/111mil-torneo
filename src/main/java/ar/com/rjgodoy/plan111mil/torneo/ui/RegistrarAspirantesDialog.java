@@ -7,17 +7,25 @@ package ar.com.rjgodoy.plan111mil.torneo.ui;
 
 import static ar.com.rjgodoy.plan111mil.torneo.ui.UiUtils.validarRequerido;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JCheckBox;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria;
 import ar.com.rjgodoy.plan111mil.torneo.modelo.Competencia;
@@ -43,9 +51,13 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 
 	private final GestorInscripcion gestorInscripcion;
 
-	private Map<Competidor, Set<Disciplina>> disciplinasPorCompetidor = new HashMap<>();
+	private Map<Competidor, Map<Disciplina, Set<Categoria>>> competidor_disciplina_categorias = new HashMap<>();
 
-	private Map<Competidor, Set<Categoria>> categoriasPorCompetidor = new HashMap<>();
+	private Map<Disciplina, Set<Categoria>> categoriasPorDisciplina = new HashMap<>();
+
+	private Competidor competidorSelected;
+
+	private Disciplina disciplinaSelected;
 
     /**
 	 * Creates new form RegistrarSedeFrame
@@ -58,9 +70,19 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
         initComponents();
 		initListaEscuelas();
 		initListaDisciplinas();
-		listAspirantes.setModel(new DefaultListModel<>());
+		initListaAspirantes();
+		initListaCategorias();
     }
 
+	private void initListaAspirantes() {
+		listAspirantes.setModel(new DefaultListModel<>());
+		listAspirantes.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				listAspirantesSelectionChanged(listAspirantes.getSelectedValue());
+			}
+		});
+	}
 
 	private void initListaEscuelas() {
 		DefaultListModel<Escuela> model = new DefaultListModel<>();
@@ -80,7 +102,11 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 		});
 
 		for (Competencia competencia : gestorCompetencia.listarCompetenciasVigentes()) {
-			disciplinas.add(competencia.getDisciplina());
+			Disciplina disciplina = competencia.getDisciplina();
+			if (disciplinas.add(disciplina)) {
+				categoriasPorDisciplina.put(disciplina, new HashSet<>());
+			}
+			categoriasPorDisciplina.get(disciplina).addAll(competencia.getCategorias());
 		}
 
 		for (Disciplina disciplina : disciplinas) {
@@ -88,6 +114,37 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 		}
 
 		listDisciplinas.setModel(model);
+
+		listDisciplinas.setCellRenderer(new ListCellRenderer<Disciplina>() {
+			@Override
+			public Component getListCellRendererComponent(JList<? extends Disciplina> list, Disciplina disciplina,
+					int index, boolean isSelected, boolean cellHasFocus) {
+				JCheckBox checkBox = new JCheckBox(disciplina.toString());
+				checkBox.setSelected(isSelected);
+				if (cellHasFocus && disciplinaSelected != disciplina) {
+					listDisciplinaSelectionChanged(isSelected ? disciplina : null);
+				}
+				if (isSelected && disciplina == disciplinaSelected) {
+					checkBox.setOpaque(true);
+					checkBox.setBackground(new Color(57, 105, 138));
+				}
+				return checkBox;
+			}
+		});
+	}
+
+	private void initListaCategorias() {
+		listCategorias.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent ev) {
+				if (competidorSelected != null && disciplinaSelected != null) {
+					Set<Categoria> categorias = competidor_disciplina_categorias.get(competidorSelected).get(disciplinaSelected);
+					categorias.clear();
+					categorias.addAll(listCategorias.getSelectedValuesList());
+				}
+			}
+		});
+
 	}
 
 	/**
@@ -296,16 +353,20 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 				boolean vinculadoDisciplina = false;
 				boolean vinculadoCategoria = false;
 				for (Competencia competencia : competencias) {
-					if (!disciplinasPorCompetidor.get(competidor).contains(competencia.getDisciplina())) {
+					Map<Disciplina, Set<Categoria>> disciplina_categorias = competidor_disciplina_categorias.get(competidor);
+					if (!disciplina_categorias.containsKey(competencia.getDisciplina())) {
+						//no se inscribe a las competencias de la disciplina
 						continue;
 					}
 
 					vinculadoDisciplina = true;
 
 					for (Categoria categoria : competencia.getCategorias()) {
-						if (!categoriasPorCompetidor.get(competidor).contains(categoria)) {
+						if (!disciplina_categorias.get(competencia.getDisciplina()).contains(categoria)) {
+							//no se inscribe a la categoria para esta disciplina
 							continue;
 						}
+
 						vinculadoCategoria = true;
 						Inscripcion inscripcion = new Inscripcion();
 						inscripcion.setCompetidor(competidor);
@@ -314,15 +375,17 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 						inscripciones.add(inscripcion);
 					}
 
+					if (!vinculadoCategoria) {
+						UiUtils.mostrarErrorValidacion(competidor + " no se encuentra vinculado a una categoría para "+competencia.getDisciplina());
+						return;
+					}
+					
 				}
 				if (!vinculadoDisciplina) {
 					UiUtils.mostrarErrorValidacion(competidor + " no se encuentra vinculado a una competencia");
 					return;
 				}
-				if (!vinculadoCategoria) {
-					UiUtils.mostrarErrorValidacion(competidor + " no se encuentra vinculado a una categoría");
-					return;
-				}
+				
 				gestorInscripcion.registrarInscripciones(inscripciones);
 			}
 		}
@@ -346,14 +409,52 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 			@Override
 			public void nuevoAspirante(Competidor c) {
 				((DefaultListModel<Competidor>)listAspirantes.getModel()).addElement(c);
+				competidor_disciplina_categorias.put(c, new HashMap<>());
 			}
         };
         
 		new NuevoAspiranteDialog(callback).setVisible(true);
     }//GEN-LAST:event_btnNuevoAspiranteActionPerformed
 
+	private void listAspirantesSelectionChanged(Competidor competidor) {
+		this.competidorSelected = competidor;
+	}
 
+	private void listDisciplinaSelectionChanged(Disciplina disciplina) {
+		this.disciplinaSelected = disciplina;
+		if (competidorSelected != null && disciplinaSelected != null) {
+			Set<Categoria> categorias = categoriasPorDisciplina.get(disciplina);
 
+			Set<Categoria> categoriasCompetidor = competidor_disciplina_categorias.get(competidorSelected).get(disciplinaSelected);
+			
+			if (categoriasCompetidor == null) {
+				categoriasCompetidor = new HashSet<>();
+				competidor_disciplina_categorias.get(competidorSelected).put(disciplinaSelected, categoriasCompetidor);
+			}
+
+			DefaultListModel<Categoria> model = new DefaultListModel<>();
+			
+			int index = 0;
+			List<Integer> indicesList = new ArrayList<>();
+			for (Categoria categoria : categorias) {
+				model.addElement(categoria);
+				if (categoriasCompetidor.contains(categoria)) {
+					indicesList.add(index);
+				}
+				index++;
+			}
+			
+
+			int indices[] = new int[indicesList.size()];
+			for (int i = 0; i < indices.length; i++) {
+				indices[i] = indicesList.get(i);
+			}
+			
+			listCategorias.setModel(model);
+			listCategorias.setSelectedIndices(indices);
+		}
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnCancelar;
