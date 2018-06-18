@@ -56,7 +56,7 @@ CREATE TABLE competidores (
 	nombres varchar(60) not null,
 	apellido varchar(60) not null,
 	direccion varchar(100) not null,
-	fechaNacimiento DATE not null
+	fecha_nacimiento DATE not null
 ) ENGINE=InnoDB;
 
 CREATE TABLE examenes (
