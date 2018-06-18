@@ -9,7 +9,7 @@
   
   <property name="inicio" type="timestamp"/>   
 
-  <set name="categorias" table="competencias_categorias" inverse="false" cascade="all" >
+  <set name="categorias" table="competencias_categorias" inverse="false" cascade="all" lazy="false">
 	<key>
     	<column name="competencia" not-null="true" />
     </key>
