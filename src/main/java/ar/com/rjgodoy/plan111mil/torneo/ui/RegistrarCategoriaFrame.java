@@ -59,7 +59,7 @@ public class RegistrarCategoriaFrame extends javax.swing.JFrame {
         rbAmbosSexos = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Registrar Disciplina");
+        setTitle("Registrar Categoría");
 
         tfDescripcion.setToolTipText("");
 

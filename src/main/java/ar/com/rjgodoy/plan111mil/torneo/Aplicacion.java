@@ -30,6 +30,7 @@ import ar.com.rjgodoy.plan111mil.torneo.servicios.GestorEscuela;
 import ar.com.rjgodoy.plan111mil.torneo.servicios.GestorInscripcion;
 import ar.com.rjgodoy.plan111mil.torneo.servicios.GestorSede;
 import ar.com.rjgodoy.plan111mil.torneo.servicios.GestorTorneo;
+import ar.com.rjgodoy.plan111mil.torneo.ui.FramePrincipal;
 import ar.com.rjgodoy.plan111mil.torneo.ui.RegistrarAspirantesDialog;
 import ar.com.rjgodoy.plan111mil.torneo.ui.RegistrarCategoriaFrame;
 import ar.com.rjgodoy.plan111mil.torneo.ui.RegistrarCompetenciaFrame;
@@ -54,7 +55,11 @@ public class Aplicacion {
 
 	private Aplicacion(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
-		registrarAspirantes();
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new FramePrincipal(Aplicacion.this).setVisible(true);
+			}
+		});
 	}
 
 	private GestorSede crearGestorSede() {
@@ -102,7 +107,7 @@ public class Aplicacion {
 		return gestorInscripcion;
 	}
 
-	private void registrarEscuela() {
+	public void registrarEscuela() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new RegistrarEscuelaFrame(crearGestorEscuela()).setVisible(true);
@@ -110,7 +115,7 @@ public class Aplicacion {
 		});
 	}
 
-	private void registrarSede() {
+	public void registrarSede() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new RegistrarSedeFrame(crearGestorSede()).setVisible(true);
@@ -118,7 +123,7 @@ public class Aplicacion {
 		});
     }
 
-	private void registrarTorneo() {
+	public void registrarTorneo() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new RegistrarTorneoFrame(crearGestorSede(), crearGestorTorneo()).setVisible(true);
@@ -126,7 +131,7 @@ public class Aplicacion {
 		});
 	}
 
-	private void registrarCategoria() {
+	public void registrarCategoria() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new RegistrarCategoriaFrame(crearGestorCategoria()).setVisible(true);
@@ -134,7 +139,7 @@ public class Aplicacion {
 		});
 	}
 
-	private void registrarDisciplina() {
+	public void registrarDisciplina() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new RegistrarDisciplinaFrame(crearGestorDisciplina()).setVisible(true);
@@ -142,7 +147,7 @@ public class Aplicacion {
 		});
 	}
 
-	private void registrarCompetencia() {
+	public void registrarCompetencia() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new RegistrarCompetenciaFrame(crearGestorTorneo(), crearGestorDisciplina(), crearGestorCategoria(),
@@ -151,7 +156,7 @@ public class Aplicacion {
 		});
 	}
 
-	private void registrarAspirantes() {
+	public void registrarAspirantes() {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new RegistrarAspirantesDialog(crearGestorEscuela(), crearGestorCompetencia(), crearGestorInscripcion())
