@@ -9,6 +9,7 @@ import static ar.com.rjgodoy.plan111mil.torneo.ui.UiUtils.validarRequerido;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
         initComponents();
 		initListaEscuelas();
 		initListaDisciplinas();
+		listAspirantes.setModel(new DefaultListModel<>());
     }
 
 
@@ -275,7 +277,12 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 			return;
 		}
 
-		List<Competidor> competidores = listAspirantes.getSelectedValuesList();
+		DefaultListModel<Competidor> competidorModel = (DefaultListModel<Competidor>) listAspirantes.getModel();
+		List<Competidor> competidores = new ArrayList<>();
+		for (Enumeration<Competidor> e = competidorModel.elements(); e.hasMoreElements();) {
+			competidores.add(e.nextElement());
+		}
+
 		if (competidores.isEmpty()) {
 			UiUtils.mostrarErrorValidacion("Debe ingresar al menos un competidor");
 			return;
@@ -286,21 +293,35 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 			List<Inscripcion> inscripciones = new ArrayList<>();
 			for (Competidor competidor: competidores) {
 				competidor.setEscuela(escuela);
+				boolean vinculadoDisciplina = false;
+				boolean vinculadoCategoria = false;
 				for (Competencia competencia : competencias) {
 					if (!disciplinasPorCompetidor.get(competidor).contains(competencia.getDisciplina())) {
 						continue;
 					}
 
+					vinculadoDisciplina = true;
+
 					for (Categoria categoria : competencia.getCategorias()) {
 						if (!categoriasPorCompetidor.get(competidor).contains(categoria)) {
 							continue;
 						}
+						vinculadoCategoria = true;
 						Inscripcion inscripcion = new Inscripcion();
 						inscripcion.setCompetidor(competidor);
 						inscripcion.setCompetencia(competencia);
 						inscripcion.setCategoria(categoria);
 						inscripciones.add(inscripcion);
 					}
+
+				}
+				if (!vinculadoDisciplina) {
+					UiUtils.mostrarErrorValidacion(competidor + " no se encuentra vinculado a una competencia");
+					return;
+				}
+				if (!vinculadoCategoria) {
+					UiUtils.mostrarErrorValidacion(competidor + " no se encuentra vinculado a una categoría");
+					return;
 				}
 				gestorInscripcion.registrarInscripciones(inscripciones);
 			}
