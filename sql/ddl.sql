@@ -78,7 +78,7 @@ CREATE TABLE inscripciones (
 	id int auto_increment primary key,
 	competidor int not null references competidores(id),
 	competencia int not null references competencias(id),
-	disciplina int not null references disciplinas(id),
+	categoria int not null references categorias(id),
 	examen int null references examenes(id),
 	estado int references estado_inscripcion(id),
 	posicion int null

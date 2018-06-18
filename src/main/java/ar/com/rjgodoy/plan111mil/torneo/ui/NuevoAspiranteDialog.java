@@ -7,6 +7,9 @@ package ar.com.rjgodoy.plan111mil.torneo.ui;
 
 import static ar.com.rjgodoy.plan111mil.torneo.ui.UiUtils.validarRequerido;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import ar.com.rjgodoy.plan111mil.torneo.modelo.Competidor;
 import ar.com.rjgodoy.plan111mil.torneo.modelo.Sexo;
 
@@ -211,6 +214,18 @@ public class NuevoAspiranteDialog extends javax.swing.JDialog {
 		} else if (rbFemenino.isSelected()) {
 			competidor.setSexo(new Sexo(Sexo.FEMENINO));
 		} else {
+			UiUtils.validarRequerido("Sexo", null);
+			return;
+		}
+
+		if (!validarRequerido("Fecha Nacimiento", tfFechaNacimiento.getText())) {
+			return;
+		}
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			competidor.setFechaNacimiento(sdf.parse(tfFechaNacimiento.getText()));
+		} catch (ParseException e) {
+			UiUtils.mostrarErrorValidacion("La Fecha ingresada es incorrecta");
 			return;
 		}
 

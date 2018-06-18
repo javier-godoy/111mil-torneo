@@ -17,5 +17,9 @@
   	<column name="escuela"/>
   </many-to-one>
   
+  <many-to-one name="sexo" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Sexo" lazy="false">
+  	<column name="sexo"/>
+  </many-to-one>
+  
  </class>
 </hibernate-mapping>
