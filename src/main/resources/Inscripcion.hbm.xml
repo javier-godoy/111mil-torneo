@@ -26,5 +26,9 @@
   	<column name="categoria"/>
   </many-to-one>
   
+  <many-to-one name="estado" class="ar.com.rjgodoy.plan111mil.torneo.modelo.EstadoInscripcion" lazy="false">
+  	<column name="estado"/>
+  </many-to-one>
+  
  </class>
 </hibernate-mapping>

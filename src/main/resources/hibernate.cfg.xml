@@ -21,6 +21,7 @@ Configuration DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernateconfiguration-
  <mapping resource="Sede.hbm.xml"/>
  <mapping resource="Sexo.hbm.xml"/>
  <mapping resource="Torneo.hbm.xml"/>
+ <mapping resource="EstadoInscripcion.hbm.xml"/>
 </session-factory>
 
 </hibernate-configuration>
