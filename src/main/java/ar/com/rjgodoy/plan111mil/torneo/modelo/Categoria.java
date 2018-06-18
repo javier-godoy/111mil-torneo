@@ -57,4 +57,17 @@ public class Categoria extends Entity {
 		return descripcion;
 	}
 
+	public boolean verificarCompetidor(Competidor competidor) {
+		int edad = competidor.calcularEdad();
+		if (edadMax != null && edad > edadMax) {
+			return false;
+		}
+		if (edadMin != null && edad < edadMin) {
+			return false;
+		}
+		if (this.sexo != null && !this.sexo.equals(competidor.getSexo())) {
+			return false;
+		}
+		return true;
+	}
 }

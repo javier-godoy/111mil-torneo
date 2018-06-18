@@ -32,7 +32,7 @@ public class GestorInscripcion {
 			if (inscripcion.getCompetidor().getId() == null) {
 				competidorDao.guardar(inscripcion.getCompetidor());
 			}
-			inscripcion.setEstado(new EstadoInscripcion());
+			inscripcion.setEstado(estado);
 			inscripcionDao.guardar(inscripcion);
 		}
 	}

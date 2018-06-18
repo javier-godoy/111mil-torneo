@@ -7,8 +7,6 @@ package ar.com.rjgodoy.plan111mil.torneo.ui;
 
 import static ar.com.rjgodoy.plan111mil.torneo.ui.UiUtils.validarRequerido;
 
-import java.awt.Color;
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -16,16 +14,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JCheckBox;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.ListCellRenderer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 
 import ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria;
 import ar.com.rjgodoy.plan111mil.torneo.modelo.Competencia;
@@ -51,15 +50,13 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 
 	private final GestorInscripcion gestorInscripcion;
 
-	private Map<Competidor, Map<Disciplina, Set<Categoria>>> competidor_disciplina_categorias = new HashMap<>();
-
 	private Map<Disciplina, Set<Categoria>> categoriasPorDisciplina = new HashMap<>();
 
-	private Competidor competidorSelected;
+	private SeleccionCompetidor competidorSelected;
 
 	private Disciplina disciplinaSelected;
 
-    /**
+	/**
 	 * Creates new form RegistrarSedeFrame
 	 */
 	public RegistrarAspirantesDialog(GestorEscuela gestorEscuela,
@@ -72,7 +69,22 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 		initListaDisciplinas();
 		initListaAspirantes();
 		initListaCategorias();
+		btnNuevoAspirante.setEnabled(false);
     }
+
+	private void initListaEscuelas() {
+		DefaultListModel<Escuela> model = new DefaultListModel<>();
+		for (Escuela escuela : gestorEscuela.listarEscuelas()) {
+			model.addElement(escuela);
+		}
+		listEscuelas.setModel(model);
+		listEscuelas.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				btnNuevoAspirante.setEnabled(true);
+			}
+		});
+	}
 
 	private void initListaAspirantes() {
 		listAspirantes.setModel(new DefaultListModel<>());
@@ -84,16 +96,7 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 		});
 	}
 
-	private void initListaEscuelas() {
-		DefaultListModel<Escuela> model = new DefaultListModel<>();
-		for (Escuela escuela : gestorEscuela.listarEscuelas()) {
-			model.addElement(escuela);
-		}
-		listEscuelas.setModel(model);
-	}
-
 	private void initListaDisciplinas() {
-		DefaultListModel<Disciplina> model = new DefaultListModel<>();
 		TreeSet<Disciplina> disciplinas = new TreeSet<>(new Comparator<Disciplina>() {
 			@Override
 			public int compare(Disciplina o1, Disciplina o2) {
@@ -110,27 +113,31 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 		}
 
 		for (Disciplina disciplina : disciplinas) {
-			model.addElement(disciplina);
+			((DefaultTableModel) tableDisciplinas.getModel()).addRow(new Object[] { false, disciplina });
 		}
 
-		listDisciplinas.setModel(model);
+		tableDisciplinas.getColumnModel().getColumn(0).setPreferredWidth(20);
+		tableDisciplinas.getColumnModel().getColumn(1).setPreferredWidth(400);
 
-		listDisciplinas.setCellRenderer(new ListCellRenderer<Disciplina>() {
-			@Override
-			public Component getListCellRendererComponent(JList<? extends Disciplina> list, Disciplina disciplina,
-					int index, boolean isSelected, boolean cellHasFocus) {
-				JCheckBox checkBox = new JCheckBox(disciplina.toString());
-				checkBox.setSelected(isSelected);
-				if (cellHasFocus && disciplinaSelected != disciplina) {
-					listDisciplinaSelectionChanged(isSelected ? disciplina : null);
+		tableDisciplinas.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					listDisciplinaSelectionChanged(tableDisciplinas.getSelectedRow());
 				}
-				if (isSelected && disciplina == disciplinaSelected) {
-					checkBox.setOpaque(true);
-					checkBox.setBackground(new Color(57, 105, 138));
-				}
-				return checkBox;
 			}
 		});
+
+		tableDisciplinas.getModel().addTableModelListener(new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {				
+				if (e.getColumn() == 0) {
+					listDisciplinaSelectionChanged(e.getFirstRow());
+				}
+			}
+		});
+
+		tableDisciplinas.setEnabled(false);
 	}
 
 	private void initListaCategorias() {
@@ -138,9 +145,9 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 			@Override
 			public void valueChanged(ListSelectionEvent ev) {
 				if (competidorSelected != null && disciplinaSelected != null) {
-					Set<Categoria> categorias = competidor_disciplina_categorias.get(competidorSelected).get(disciplinaSelected);
-					categorias.clear();
-					categorias.addAll(listCategorias.getSelectedValuesList());
+					Set<Categoria> categoriasCompetidor = competidorSelected.getCategorias(disciplinaSelected);
+					categoriasCompetidor.clear();
+					categoriasCompetidor.addAll(listCategorias.getSelectedValuesList());
 				}
 			}
 		});
@@ -156,8 +163,6 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnCancelar = new javax.swing.JButton();
-        btnAceptar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         listEscuelas = new javax.swing.JList<>();
         javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
@@ -168,31 +173,17 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
         btnNuevoAspirante = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        listDisciplinas = new javax.swing.JList<>();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tableDisciplinas = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
         javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
         jScrollPane5 = new javax.swing.JScrollPane();
         listCategorias = new javax.swing.JList<>();
+        btnAceptar = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Registrar Aspirantes");
-
-        btnCancelar.setText("Cancelar");
-        btnCancelar.setName(""); // NOI18N
-        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCancelarActionPerformed(evt);
-            }
-        });
-
-        btnAceptar.setText("Aceptar");
-        btnAceptar.setName(""); // NOI18N
-        btnAceptar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAceptarActionPerformed(evt);
-            }
-        });
 
         listEscuelas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(listEscuelas);
@@ -232,12 +223,29 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnNuevoAspirante)
-                .addContainerGap(42, Short.MAX_VALUE))
+                .addContainerGap(66, Short.MAX_VALUE))
         );
 
         jLabel5.setText("Competencias");
 
-        jScrollPane4.setViewportView(listDisciplinas);
+        tableDisciplinas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "", "Disciplina"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.Object.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        tableDisciplinas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
+        jScrollPane3.setViewportView(tableDisciplinas);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -246,16 +254,16 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 470, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 468, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(285, 285, 285))
         );
 
         jLabel6.setText("Categorías");
@@ -277,8 +285,25 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        btnAceptar.setText("Aceptar");
+        btnAceptar.setName(""); // NOI18N
+        btnAceptar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAceptarActionPerformed(evt);
+            }
+        });
+
+        btnCancelar.setText("Cancelar");
+        btnCancelar.setName(""); // NOI18N
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -292,12 +317,14 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(btnAceptar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnCancelar))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btnAceptar)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnCancelar))
+                                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(6, 6, 6))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
@@ -314,15 +341,17 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnCancelar)
-                            .addComponent(btnAceptar)))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                            .addComponent(btnAceptar)
+                            .addComponent(btnCancelar))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
 
         pack();
@@ -334,9 +363,10 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 			return;
 		}
 
-		DefaultListModel<Competidor> competidorModel = (DefaultListModel<Competidor>) listAspirantes.getModel();
-		List<Competidor> competidores = new ArrayList<>();
-		for (Enumeration<Competidor> e = competidorModel.elements(); e.hasMoreElements();) {
+		DefaultListModel<SeleccionCompetidor> competidorModel = (DefaultListModel<SeleccionCompetidor>) listAspirantes
+				.getModel();
+		List<SeleccionCompetidor> competidores = new ArrayList<>();
+		for (Enumeration<SeleccionCompetidor> e = competidorModel.elements(); e.hasMoreElements();) {
 			competidores.add(e.nextElement());
 		}
 
@@ -348,21 +378,21 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
 		if (confirmar()) {
 			List<Competencia> competencias = gestorCompetencia.listarCompetenciasVigentes();
 			List<Inscripcion> inscripciones = new ArrayList<>();
-			for (Competidor competidor: competidores) {
+			for (SeleccionCompetidor seleccionCompetidor : competidores) {
+				Competidor competidor = seleccionCompetidor.getCompetidor();
+
 				competidor.setEscuela(escuela);
 				boolean vinculadoDisciplina = false;
 				boolean vinculadoCategoria = false;
 				for (Competencia competencia : competencias) {
-					Map<Disciplina, Set<Categoria>> disciplina_categorias = competidor_disciplina_categorias.get(competidor);
-					if (!disciplina_categorias.containsKey(competencia.getDisciplina())) {
+					if (!seleccionCompetidor.hasDisciplina(competencia.getDisciplina())) {
 						//no se inscribe a las competencias de la disciplina
 						continue;
 					}
 
 					vinculadoDisciplina = true;
-
 					for (Categoria categoria : competencia.getCategorias()) {
-						if (!disciplina_categorias.get(competencia.getDisciplina()).contains(categoria)) {
+						if (!seleccionCompetidor.getCategorias(competencia.getDisciplina()).contains(categoria)) {
 							//no se inscribe a la categoria para esta disciplina
 							continue;
 						}
@@ -408,50 +438,66 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
         Callback callback = new Callback() {
 			@Override
 			public void nuevoAspirante(Competidor c) {
-				((DefaultListModel<Competidor>)listAspirantes.getModel()).addElement(c);
-				competidor_disciplina_categorias.put(c, new HashMap<>());
+				SeleccionCompetidor nuevo = new SeleccionCompetidor(c);
+				((DefaultListModel<SeleccionCompetidor>) listAspirantes.getModel()).addElement(nuevo);
+				for (Entry<Disciplina, Set<Categoria>> e : categoriasPorDisciplina.entrySet()) {
+					Disciplina disciplina = e.getKey();
+					for (Categoria categoria : e.getValue()) {
+						if (categoria.verificarCompetidor(c)) {
+							nuevo.getCategorias(disciplina).add(categoria);
+						}
+					}
+				}
 			}
         };
         
 		new NuevoAspiranteDialog(callback).setVisible(true);
     }//GEN-LAST:event_btnNuevoAspiranteActionPerformed
 
-	private void listAspirantesSelectionChanged(Competidor competidor) {
+	private void listAspirantesSelectionChanged(SeleccionCompetidor competidor) {
 		this.competidorSelected = competidor;
+		tableDisciplinas.setEnabled(competidorSelected != null);
+		for (int i = 0; i < tableDisciplinas.getModel().getRowCount(); i++) {
+			Disciplina disciplina = (Disciplina) tableDisciplinas.getModel().getValueAt(i, 1);
+			tableDisciplinas.getModel().setValueAt(competidor.hasDisciplina(disciplina), i, 0);
+		}
 	}
 
-	private void listDisciplinaSelectionChanged(Disciplina disciplina) {
-		this.disciplinaSelected = disciplina;
-		if (competidorSelected != null && disciplinaSelected != null) {
+	private void listDisciplinaSelectionChanged(int rowIndex) {
+		Disciplina disciplina = (Disciplina) tableDisciplinas.getModel().getValueAt(rowIndex, 1);
+		Boolean selected = (Boolean) tableDisciplinas.getModel().getValueAt(rowIndex, 0);
+
+		if (competidorSelected != null) {
+
+			this.disciplinaSelected = null;
+
+			Set<Categoria> categoriasCompetidor = competidorSelected.getCategorias(disciplina);
 			Set<Categoria> categorias = categoriasPorDisciplina.get(disciplina);
-
-			Set<Categoria> categoriasCompetidor = competidor_disciplina_categorias.get(competidorSelected).get(disciplinaSelected);
-			
-			if (categoriasCompetidor == null) {
-				categoriasCompetidor = new HashSet<>();
-				competidor_disciplina_categorias.get(competidorSelected).put(disciplinaSelected, categoriasCompetidor);
-			}
-
 			DefaultListModel<Categoria> model = new DefaultListModel<>();
 			
 			int index = 0;
 			List<Integer> indicesList = new ArrayList<>();
 			for (Categoria categoria : categorias) {
 				model.addElement(categoria);
-				if (categoriasCompetidor.contains(categoria)) {
+				if (selected && categoriasCompetidor.contains(categoria)) {
 					indicesList.add(index);
 				}
 				index++;
 			}
-			
 
 			int indices[] = new int[indicesList.size()];
 			for (int i = 0; i < indices.length; i++) {
 				indices[i] = indicesList.get(i);
 			}
-			
+
+			competidorSelected.setDisciplinaSelected(disciplina, selected);
 			listCategorias.setModel(model);
 			listCategorias.setSelectedIndices(indices);
+			listCategorias.setEnabled(selected);
+
+			if (selected) {
+				this.disciplinaSelected = disciplina;
+			}
 		}
     }
     
@@ -464,11 +510,11 @@ public class RegistrarAspirantesDialog extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JList<Competidor> listAspirantes;
+    private javax.swing.JList<SeleccionCompetidor> listAspirantes;
     private javax.swing.JList<Categoria> listCategorias;
-    private javax.swing.JList<Disciplina> listDisciplinas;
     private javax.swing.JList<Escuela> listEscuelas;
+    private javax.swing.JTable tableDisciplinas;
     // End of variables declaration//GEN-END:variables
 }

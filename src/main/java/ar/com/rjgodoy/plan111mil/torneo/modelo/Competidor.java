@@ -1,5 +1,6 @@
 package ar.com.rjgodoy.plan111mil.torneo.modelo;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class Competidor extends Entity {
@@ -81,4 +82,18 @@ public class Competidor extends Entity {
 	public String toString() {
 		return nombres + " " + apellido;
 	}
+
+	public int calcularEdad() {
+		Calendar hoy = Calendar.getInstance();
+		Calendar nac = Calendar.getInstance();
+		nac.setTime(fechaNacimiento);
+		int edad = hoy.get(Calendar.YEAR) - nac.get(Calendar.YEAR);
+		if (nac.get(Calendar.MONTH) > hoy.get(Calendar.MONTH) || ((nac.get(Calendar.MONTH) == hoy.get(Calendar.MONTH))
+				&& nac.get(Calendar.DAY_OF_MONTH) > hoy.get(Calendar.DAY_OF_MONTH))) {
+			return edad - 1;
+		} else {
+			return edad;
+		}
+	}
+
 }
