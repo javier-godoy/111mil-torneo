@@ -13,7 +13,7 @@
   <property name="direccion"/>
   <property name="fechaNacimiento" column="fecha_nacimiento" type="date"/>
  	
-  <many-to-one name="escuela" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Escuela">
+  <many-to-one name="escuela" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Escuela" lazy="false">
   	<column name="escuela"/>
   </many-to-one>
   

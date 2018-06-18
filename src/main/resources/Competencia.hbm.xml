@@ -13,16 +13,16 @@
 	<key>
     	<column name="competencia" not-null="true" />
     </key>
-    <many-to-many entity-name="ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria">
+    <many-to-many entity-name="ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria" lazy="false">
     	<column name="categoria" not-null="true" />
 	</many-to-many>
   </set>
           
-  <many-to-one name="disciplina" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Disciplina">
+  <many-to-one name="disciplina" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Disciplina" lazy="false">
   	<column name="disciplina"/>
   </many-to-one>
             
-  <many-to-one name="torneo" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Torneo">
+  <many-to-one name="torneo" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Torneo" lazy="false">
   	<column name="torneo"/>
   </many-to-one>
   

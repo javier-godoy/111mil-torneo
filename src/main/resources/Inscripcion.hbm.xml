@@ -10,19 +10,19 @@
   
   <property name="posicion"/>
   
-  <many-to-one name="competidor" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Competidor">
+  <many-to-one name="competidor" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Competidor" lazy="false">
   	<column name="competidor"/>
   </many-to-one>
   
-  <many-to-one name="examen" class="ar.com.rjgodoy.plan111mil.torneo.modelo.ExamenMedico">
+  <many-to-one name="examen" class="ar.com.rjgodoy.plan111mil.torneo.modelo.ExamenMedico" lazy="false">
   	<column name="examen"/>
   </many-to-one>
   
-  <many-to-one name="competencia" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Competencia">
+  <many-to-one name="competencia" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Competencia" lazy="false">
   	<column name="competencia"/>
   </many-to-one>
   
-  <many-to-one name="categoria" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria">
+  <many-to-one name="categoria" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Categoria" lazy="false">
   	<column name="categoria"/>
   </many-to-one>
   

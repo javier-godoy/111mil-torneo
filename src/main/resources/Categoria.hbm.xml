@@ -11,7 +11,7 @@
   <property name="edadMin" column="edad_min"/>
   <property name="edadMax" column="edad_max"/>
   
-  <many-to-one name="sexo" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Sexo">
+  <many-to-one name="sexo" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Sexo" lazy="false">
   	<column name="sexo"/>
   </many-to-one>   
    	

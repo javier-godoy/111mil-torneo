@@ -10,7 +10,7 @@
   
   <property name="nombre"/>
   
-  <many-to-one name="sede" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Sede">
+  <many-to-one name="sede" class="ar.com.rjgodoy.plan111mil.torneo.modelo.Sede" lazy="false">
   	<column name="sede"/>
   </many-to-one>   
    	
