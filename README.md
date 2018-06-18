@@ -11,3 +11,12 @@ Este es un proyecto Maven, con las siguientes dependencias: hibernate-core 5.3.1
 
 La base de datos configurada en [hibernate.cfg.xml](https://github.com/javier-godoy/111mil-torneo/blob/master/src/main/resources/hibernate.cfg.xml) es
 localhost:3306/torneo_111mil (usuario:root, contraseña: root)
+
+#### Casos de uso implementados
+* Registrar Inscripcion de Aspirantes
+* Registrar Categoría
+* Registrar Sede
+* Registrar Disciplina
+* Registrar Torneo
+* Registrar Competencia
+* Registrar Escuela
